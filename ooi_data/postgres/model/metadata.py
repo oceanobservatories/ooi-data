@@ -3,7 +3,7 @@ from sqlalchemy import (BigInteger, Column, Float, Integer, String,
                         UniqueConstraint, DateTime, ForeignKey, Sequence)
 from sqlalchemy.orm import relationship
 
-from .base import MetadataBase
+from .base import MetadataBase, NtpSecsTimestamp
 
 
 class PartitionMetadatum(MetadataBase):
@@ -20,8 +20,8 @@ class PartitionMetadatum(MetadataBase):
     store = Column(String(255), nullable=False)
     bin = Column(BigInteger, nullable=False)
     count = Column(BigInteger, nullable=False)
-    first = Column(Float, nullable=False)
-    last = Column(Float, nullable=False)
+    first = Column(NtpSecsTimestamp, nullable=False)
+    last = Column(NtpSecsTimestamp, nullable=False)
     modified = Column(DateTime)
 
     def __repr__(self):
@@ -38,8 +38,8 @@ class StreamMetadatum(MetadataBase):
 
     id = Column(Integer, Sequence('stream_metadata_seq'), primary_key=True)
     count = Column(BigInteger, nullable=False)
-    first = Column(Float, nullable=False)
-    last = Column(Float, nullable=False)
+    first = Column(NtpSecsTimestamp, nullable=False)
+    last = Column(NtpSecsTimestamp, nullable=False)
     method = Column(String(255), nullable=False)
     node = Column(String(16), nullable=False)
     sensor = Column(String(16), nullable=False)
