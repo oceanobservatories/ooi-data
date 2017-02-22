@@ -10,6 +10,12 @@ MonitorBase = declarative_base()
 
 
 class UnixMillisTimestamp(TypeDecorator):
+    """
+    SQL Alchemy custom column type.
+
+    Exposes a database column with BIGINT type containing
+    milliseconds since 1970-1-1 as a datetime object
+    """
     impl = BIGINT
     UNIX_EPOCH = datetime.datetime(1970, 1, 1)
 
@@ -26,6 +32,12 @@ class UnixMillisTimestamp(TypeDecorator):
 
 
 class NtpSecsTimestamp(TypeDecorator):
+    """
+    SQL Alchemy custom column type.
+
+    Exposes a database column with FLOAT type containing
+    seconds since 1900-1-1 as a datetime object
+    """
     impl = FLOAT
     NTP_EPOCH = datetime.datetime(1900, 1, 1)
     NTP_DELTA = (datetime.datetime(1970, 1, 1) - NTP_EPOCH).total_seconds()

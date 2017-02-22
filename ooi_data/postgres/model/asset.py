@@ -5,7 +5,7 @@ from sqlalchemy import (BigInteger, Boolean, Column, DateTime, Float, ForeignKey
 from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import relationship
 
-from .base import MetadataBase
+from .base import MetadataBase, UnixMillisTimestamp
 
 
 class Xevent(MetadataBase):
@@ -14,8 +14,8 @@ class Xevent(MetadataBase):
     datasource = Column(String(255))
     lastmodifiedtimestamp = Column(DateTime)
     eventname = Column(String(255), nullable=False)
-    eventstarttime = Column(BigInteger)
-    eventstoptime = Column(BigInteger)
+    eventstarttime = Column(UnixMillisTimestamp)
+    eventstoptime = Column(UnixMillisTimestamp)
     eventtype = Column(String(255), nullable=False)
     notes = Column(Text)
     assetuid = Column(String(128))
