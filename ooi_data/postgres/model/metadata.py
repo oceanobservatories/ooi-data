@@ -24,6 +24,10 @@ class PartitionMetadatum(MetadataBase):
     last = Column(NtpSecsTimestamp, nullable=False)
     modified = Column(DateTime)
 
+    @property
+    def refdes(self):
+        return '-'.join((self.subsite, self.node, self.sensor))
+
     def __repr__(self):
         return str({'id': self.id, 'bin': self.bin, 'count': self.count, 'first': self.first, 'last': self.last,
                     'method': self.method, 'node': self.node, 'sensor': self.sensor, 'subsite': self.subsite,
@@ -45,6 +49,10 @@ class StreamMetadatum(MetadataBase):
     sensor = Column(String(16), nullable=False)
     subsite = Column(String(16), nullable=False)
     stream = Column(String(255), nullable=False)
+
+    @property
+    def refdes(self):
+        return '-'.join((self.subsite, self.node, self.sensor))
 
 
 class ProcessedMetadatum(MetadataBase):
