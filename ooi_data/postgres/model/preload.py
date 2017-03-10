@@ -400,7 +400,7 @@ class Stream(MetadataBase):
         Determine all external parameters needed by this stream to fulfill all derived products
         :return: List of Parameter objects
         """
-        return self.needs_external(None)
+        return self.needs_external(self.parameters)
 
     @property
     def needs_cc(self):
@@ -413,14 +413,40 @@ class Stream(MetadataBase):
         return [p for p in self.parameters if p.is_function]
 
     def needs_external(self, parameters):
-        if parameters:
-            function_params = [p for p in self.parameters if p in parameters and p.is_function]
-        else:
-            function_params = [p for p in self.parameters if p.is_function]
-        needed = set([p1 for p in function_params for p1 in p.needs])
-        local1 = [(None, (p,)) for p in self.parameters]
-        local2 = [(self, (p,)) for p in self.parameters]
-        return needed.difference(local1).difference(local2)
+        queue = {p for p in parameters if p in self.parameters}
+        visited = set()
+        needed = set()
+        while queue:
+            parameter = queue.pop()
+            if parameter in visited:
+                continue
+            visited.add(parameter)
+            if parameter.is_function:
+                for stream, poss_params in parameter.needs:
+                    # If stream is self must be internal, skip
+                    if stream == self:
+                        queue.update(poss_params)
+                        continue
+
+                    # If stream is defined but not self, must be external
+                    if stream is not None:
+                        needed.add((stream, poss_params))
+                        continue
+
+                    # If any possible params are in this stream
+                    # push them on the queue so we make sure to pick
+                    # up any of their external needs, but don't
+                    # mark them as external
+                    internal = False
+                    for each in poss_params:
+                        if each in self.parameters:
+                            queue.add(each)
+                            internal = True
+                            break
+
+                    if not internal:
+                        needed.add((stream, poss_params))
+        return needed
 
     def needs_internal(self, parameters):
         """
@@ -428,30 +454,40 @@ class Stream(MetadataBase):
         :param parameters: list of parameters to check
         :return: set of parameters necessary to complete all derived products
         """
-        to_process = {p for p in parameters if p in self.parameters}
+        queue = {p for p in parameters if p in self.parameters}
         needs = set()
         processed = set()
 
-        while to_process:
-            to_consider = to_process.pop()
+        while queue:
+            to_consider = queue.pop()
+            if to_consider in processed:
+                continue
+            processed.add(to_consider)
+
+            # any non-function parameter is in the queue
+            # then it MUST be needed internally
             if not to_consider.is_function:
-                if to_consider in self.parameters:
-                    needs.add(to_consider)
+                needs.add(to_consider)
                 continue
 
+            # function parameter. iterate all needed parameters
             for stream, poss in to_consider.needs:
+                # guaranteed same stream, add to queue
                 if stream == self:
-                    needs.add(poss[0])
+                    queue.update(poss)
+
+                # no specific stream, iterate possible parameters
                 elif stream is None:
                     for param in poss:
-
-                        if param in needs or param in processed:
-                            continue
-                        to_process.add(param)
-                        if param in self.parameters and not param.is_function:
-                            needs.add(param)
-                        else:
-                            processed.add(param)
+                        # found parameter in our stream
+                        if param in self.parameters:
+                            if param.is_function:
+                                # parameter is a function, add to queue for checking
+                                queue.add(param)
+                            else:
+                                # parameter is "raw", add to needs
+                                needs.add(param)
+                            break
         return needs
 
     def create_function_map(self, parameter, supporting_streams=None):
