@@ -1,5 +1,6 @@
 import json
 from numbers import Number
+from operator import attrgetter
 from pprint import pformat
 
 import numpy as np
@@ -254,34 +255,10 @@ class Parameter(MetadataBase):
         Calculate all parameters needed to generate this parameter 1 level deep in the dependency graph
         :return: List of (Stream, (params,)) tuples
         """
-        needed = []
-        if self.is_function:
-            # noinspection PyPropertyAccess
-            for value in self.parameter_function_map.values():
-                # value is number, skip
-                if not isinstance(value, basestring):
-                    continue
-                # value is a specific parameter, store as (None, (param))
-                if value.startswith('PD'):
-                    param = (Parameter.query.get(self.parse_pdid(value)),)
-                    needed.append((None, param))
-                # value is a data product identifier, store as (None, (p1, p2))
-                elif value.startswith('dpi_'):
-                    _, dpi = value.split('_', 1)
-                    needed.append((None,
-                                   tuple(Parameter.query.filter(Parameter.data_product_identifier == dpi).all())))
-                # value is a calibration coefficient
-                elif value.startswith('CC'):
-                    continue
-                # value may be STREAM.PARAMETER, store as (stream, (param,))
-                else:
-                    if '.' in value:
-                        stream, parameter = value.split('.', 1)
-                        stream = Stream.query.filter(Stream.name == stream).first()
-                        parameter = Parameter.query.get(self.parse_pdid(parameter))
-                        if stream and parameter:
-                            needed.append((stream, (parameter,)))
-        return needed
+        return [v for v in self.needs_map.itervalues()
+                if isinstance(v, tuple)
+                and len(v) > 1
+                and isinstance(v[1], tuple)]
 
     @property
     def needs_map(self):
@@ -292,31 +269,38 @@ class Parameter(MetadataBase):
         needed = {}
         if self.is_function:
             # noinspection PyPropertyAccess
-            for name, value in self.parameter_function_map.iteritems():
+            for name, values in self.parameter_function_map.iteritems():
                 # value is number, skip
-                if isinstance(value, Number):
-                    needed[name] = (None, value)
-                elif isinstance(value, basestring):
-                    stream = None
-                    params = None
-                    # value is a specific parameter, store as (None, (param))
-                    if value.startswith('PD'):
-                        params = (Parameter.query.get(self.parse_pdid(value)),)
-                    # value is a data product identifier, store as (None, (p1, p2))
-                    elif value.startswith('dpi_'):
-                        _, dpi = value.split('_', 1)
-                        params = tuple(Parameter.query.filter(Parameter.data_product_identifier == dpi).all())
+                if isinstance(values, Number):
+                    needed[name] = (None, values)
+                    continue
+
+                if isinstance(values, basestring):
                     # value is a calibration coefficient
-                    elif value.startswith('CC'):
-                        params = value
-                    # value may be STREAM.PARAMETER, store as (stream, (param,))
-                    else:
-                        if '.' in value:
-                            stream, parameter = value.split('.', 1)
-                            stream = Stream.query.filter(Stream.name == stream).first()
-                            params = (Parameter.query.get(self.parse_pdid(parameter)),)
+                    if values.startswith('CC'):
+                        needed[name] = (None, values)
+                        continue
+                    values = [values]
+
+                if isinstance(values, (list, tuple)):
+                    stream = None
+                    params = set()
+                    for value in values:
+                        # value is a specific parameter, store as (None, (param))
+                        if value.startswith('PD'):
+                            params.add(Parameter.query.get(self.parse_pdid(value)))
+                        # value is a data product identifier, store as (None, (p1, p2))
+                        elif value.startswith('dpi_'):
+                            _, dpi = value.split('_', 1)
+                            params.update(Parameter.query.filter(Parameter.data_product_identifier == dpi).all())
+                        # value may be STREAM.PARAMETER, store as (stream, (param,))
+                        else:
+                            if '.' in value:
+                                stream, parameter = value.split('.', 1)
+                                stream = Stream.query.filter(Stream.name == stream).first()
+                                params.add(Parameter.query.get(self.parse_pdid(parameter)))
                     if params:
-                        needed[name] = (stream, params)
+                        needed[name] = (stream, tuple(sorted(params, key=attrgetter('id'))))
         return needed
 
     @property
