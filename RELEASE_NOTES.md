@@ -2,6 +2,8 @@
 
 # Release 0.0.7 2020-06-02
 
+Issue #14537 - Update numpy to version 1.16
+
 Issue #14278 - Add netcdf_name attribute to Parameter object
 
 # Release 0.0.6 2020-05-05
