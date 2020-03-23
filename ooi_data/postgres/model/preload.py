@@ -4,7 +4,7 @@ from operator import attrgetter
 from pprint import pformat
 
 import numpy as np
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, and_
+from sqlalchemy import Column, Boolean, Integer, String, ForeignKey, UniqueConstraint, and_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
@@ -171,6 +171,7 @@ class Parameter(MetadataBase):
     data_product_type_id = Column(Integer, ForeignKey('data_product_type.id'))
     _data_product_type = relationship(DataProductType)
     data_level = Column(Integer)
+    visible = Column(Boolean, default=True)
 
     @hybrid_property
     def parameter_function_map(self):
@@ -244,6 +245,10 @@ class Parameter(MetadataBase):
     @property
     def is_l2(self):
         return self.is_function and not self.is_l1
+
+    @property
+    def is_visible(self):
+        return self.visible
 
     @staticmethod
     def parse_pdid(pdid_string):
@@ -322,7 +327,7 @@ class Parameter(MetadataBase):
             'fill': self.fill_value,
             'encoding': self.value_encoding,
             'precision': self.precision,
-            'pmap': self.parameter_function_map
+            'pmap': self.parameter_function_map,
         }
 
     def __repr__(self):
