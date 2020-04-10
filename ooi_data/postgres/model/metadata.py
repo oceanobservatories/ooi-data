@@ -1,6 +1,7 @@
 # coding: utf-8
 from sqlalchemy import (BigInteger, Column, Float, Integer, String,
-                        UniqueConstraint, DateTime, ForeignKey, Sequence)
+                        UniqueConstraint, DateTime, ForeignKey, Sequence,
+                        Boolean)
 from sqlalchemy.orm import relationship
 
 from .base import MetadataBase, NtpSecsTimestamp
@@ -58,12 +59,13 @@ class StreamMetadatum(MetadataBase):
 class ProcessedMetadatum(MetadataBase):
     __tablename__ = 'processed_metadata'
     __table_args__ = (
-        UniqueConstraint('processor_name', 'partition_id'),
+        UniqueConstraint('processor_name', 'partition_metadata_id'),
     )
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence('processed_metadata_seq'), primary_key=True)
     processor_name = Column(String, nullable=False)
     processed_time = Column(DateTime, nullable=False)
-    partition_id = Column(Integer, ForeignKey('partition_metadata.id', ondelete='CASCADE'))
+    success = Column(Boolean, nullable=False)
+    partition_metadata_id = Column(Integer, ForeignKey('partition_metadata.id', ondelete='CASCADE'))
     partition = relationship(PartitionMetadatum)
 
 
@@ -98,3 +100,4 @@ FOR EACH ROW WHEN (new.modified = old.modified OR old.modified is NULL) EXECUTE 
 CREATE TRIGGER insert_partition_metadata_modtime BEFORE INSERT ON partition_metadata
 FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 """
+
