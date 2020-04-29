@@ -148,6 +148,7 @@ class Parameter(MetadataBase):
     __tablename__ = 'parameter'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
+    netcdf_name = Column(String(250))
     parameter_type_id = Column(Integer, ForeignKey('parameter_type.id'))
     _parameter_type = relationship(ParameterType)
     value_encoding_id = Column(Integer, ForeignKey('value_encoding.id'))

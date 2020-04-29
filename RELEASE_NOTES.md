@@ -1,6 +1,10 @@
 # ooi-data
 
-# Release 0.0.6 2020-10-04
+# Release 0.0.7 2020-06-02
+
+Issue #14278 - Add netcdf_name attribute to Parameter object
+
+# Release 0.0.6 2020-05-05
 
 Issue #14278 - Add visible attribute to Parameter object
 
