@@ -1,6 +1,6 @@
 # ooi-data
 
-# Release 0.0.7 2020-06-02
+# Release 0.0.7 2020-06-09
 
 Issue #14537 - Update numpy to version 1.16
 
