@@ -42,7 +42,7 @@ class TestParameter(PreloadUnitTest):
         self.assertEqual(p.unit, '1')
         self.assertEqual(p.parameter_type, 'function')
         self.assertEqual(p.code_set, None)
-        self.assertEqual(p.fill_value, u'-9999999')
+        self.assertEqual(p.fill_value, '-9999999')
 
     def test_dpi(self):
         preswat_parameters = Parameter.query.filter(Parameter.data_product_identifier == 'PRESWAT_L1').all()
@@ -160,7 +160,7 @@ class TestStream(PreloadUnitTest):
         self.assertEqual(set(nutnr_a_sample.needs_external(nutnr_a_sample_limited_parameters)), set())
 
     def test_needs_cc(self):
-        needed = [u'CC_scale_factor4', u'CC_scale_factor3', u'CC_scale_factor2', u'CC_scale_factor1']
+        needed = ['CC_scale_factor4', 'CC_scale_factor3', 'CC_scale_factor2', 'CC_scale_factor1']
         adcp_velocity_glider = Stream.query.get(746)
         self.assertEqual(adcp_velocity_glider.needs_cc, set(needed))
 
@@ -331,7 +331,7 @@ class TestStream(PreloadUnitTest):
         practical_salinity = Parameter.query.get(13)
 
         fmap, missing = phsen_data_record.create_function_map(ph_seawater, [ctdpf_optode_sample])
-        print missing
+        print(missing)
 
         # Check the returned parameters are mapped correctly
         expected = {

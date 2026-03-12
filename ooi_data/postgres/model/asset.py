@@ -62,19 +62,19 @@ class Xasset(MetadataBase):
     softwareversion = Column(String(128))
     uid = Column(String(128), unique=True)
 
-    remoteresources = relationship(u'Xremoteresource', secondary='xasset_xremoteresource')
+    remoteresources = relationship('Xremoteresource', secondary='xasset_xremoteresource')
 
 
 t_xasset_xremoteresource = Table(
     'xasset_xremoteresource', MetadataBase.metadata,
-    Column('assetid', ForeignKey(u'xasset.assetid'), nullable=False),
-    Column('remoteresourceid', ForeignKey(u'xremoteresource.remoteresourceid'), nullable=False, unique=True)
+    Column('assetid', ForeignKey('xasset.assetid'), nullable=False),
+    Column('remoteresourceid', ForeignKey('xremoteresource.remoteresourceid'), nullable=False, unique=True)
 )
 
 
 class Xacquisition(Xevent):
     __tablename__ = 'xacquisition'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     authorizationforpayment = Column(String(256))
     authorizationnumber = Column(String(256))
     invoicenumber = Column(String(128))
@@ -87,7 +87,7 @@ class Xacquisition(Xevent):
 
 class Xarray(Xasset):
     __tablename__ = 'xarray'
-    assetid = Column(ForeignKey(u'xasset.assetid'), primary_key=True)
+    assetid = Column(ForeignKey('xasset.assetid'), primary_key=True)
     commissiondate = Column(DateTime)
     decommissiondate = Column(DateTime)
 
@@ -96,14 +96,14 @@ class Xcalibration(MetadataBase):
     __tablename__ = 'xcalibration'
     calid = Column(Integer, primary_key=True)
     name = Column(String(255))
-    assetid = Column(ForeignKey(u'xinstrument.assetid'))
-    instrument = relationship(u'Xinstrument')
+    assetid = Column(ForeignKey('xinstrument.assetid'))
+    instrument = relationship('Xinstrument')
 
 
 class Xassetstatusevent(Xevent):
     __tablename__ = 'xassetstatusevent'
     __status_values = ['FAILED', 'NOT_TRACKED', 'OPERATIONAL', 'REMOVED']
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     location = Column(String(256))
     reason = Column(String(256))
     severity = Column(Integer)
@@ -117,7 +117,7 @@ class Xassetstatusevent(Xevent):
 
 class Xstorage(Xevent):
     __tablename__ = 'xstorage'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     buildingname = Column(String(64))
     performedby = Column(String(256))
     physicallocation = Column(String(64))
@@ -136,12 +136,12 @@ class Xatvendor(Xevent):
     senttovendorby = Column(String(128))
     vendoridentification = Column(String(256))
     vendorpointofcontact = Column(String(128))
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
 
 
 class Xlocationevent(Xevent):
     __tablename__ = 'xlocationevent'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     depth = Column(Float(53))
     latitude = Column(Float(53))
     location = Column(Geometry)
@@ -151,7 +151,7 @@ class Xlocationevent(Xevent):
 
 class Xretirement(Xevent):
     __tablename__ = 'xretirement'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     disposition = Column(String(256))
     reason = Column(String(256))
     retiredby = Column(String(256))
@@ -159,7 +159,7 @@ class Xretirement(Xevent):
 
 class Xcruiseinfo(Xevent):
     __tablename__ = 'xcruiseinfo'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     editphase = Column(String(32), nullable=False)
     shipname = Column(String(64), nullable=False)
     uniquecruiseidentifier = Column(String(64), nullable=False, unique=True)
@@ -167,7 +167,7 @@ class Xcruiseinfo(Xevent):
 
 class Xintegrationevent(Xevent):
     __tablename__ = 'xintegrationevents'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     deploymentnumber = Column(Integer, nullable=False)
     integratedby = Column(String(256))
     node = Column(String(16))
@@ -178,13 +178,13 @@ class Xintegrationevent(Xevent):
 
 class Xcalibrationdatum(Xevent):
     __tablename__ = 'xcalibrationdata'
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     cardinality = Column(Integer)
     comments = Column(String(256))
     dimensions = Column(LargeBinary)
     values = Column(LargeBinary)
-    calid = Column(ForeignKey(u'xcalibration.calid'))
-    xcalibration = relationship(u'Xcalibration')
+    calid = Column(ForeignKey('xcalibration.calid'))
+    xcalibration = relationship('Xcalibration')
 
 
 class Xdeployment(Xevent):
@@ -192,7 +192,7 @@ class Xdeployment(Xevent):
     __table_args__ = (
         UniqueConstraint('subsite', 'node', 'sensor', 'deploymentnumber', 'versionnumber'),
     )
-    eventid = Column(ForeignKey(u'xevent.eventid'), primary_key=True)
+    eventid = Column(ForeignKey('xevent.eventid'), primary_key=True)
     deployedby = Column(String(128))
     deploymentnumber = Column(Integer, nullable=False)
     editphase = Column(String(32), nullable=False)
@@ -208,37 +208,37 @@ class Xdeployment(Xevent):
     sensor = Column(String(16))
     subsite = Column(String(16))
     versionnumber = Column(Integer, nullable=False)
-    deploycruiseid = Column(ForeignKey(u'xcruiseinfo.eventid'))
-    massetid = Column(ForeignKey(u'xmooring.assetid'))
-    nassetid = Column(ForeignKey(u'xnode.assetid'))
-    recovercruiseid = Column(ForeignKey(u'xcruiseinfo.eventid'))
-    sassetid = Column(ForeignKey(u'xinstrument.assetid'))
+    deploycruiseid = Column(ForeignKey('xcruiseinfo.eventid'))
+    massetid = Column(ForeignKey('xmooring.assetid'))
+    nassetid = Column(ForeignKey('xnode.assetid'))
+    recovercruiseid = Column(ForeignKey('xcruiseinfo.eventid'))
+    sassetid = Column(ForeignKey('xinstrument.assetid'))
 
-    deploy_cruise = relationship(u'Xcruiseinfo', primaryjoin='Xdeployment.deploycruiseid == Xcruiseinfo.eventid')
-    mooring_asset = relationship(u'Xmooring', primaryjoin='Xdeployment.massetid == Xmooring.assetid')
-    node_asset = relationship(u'Xnode', primaryjoin='Xdeployment.nassetid == Xnode.assetid')
-    recover_cruise = relationship(u'Xcruiseinfo', primaryjoin='Xdeployment.recovercruiseid == Xcruiseinfo.eventid')
-    instrument_asset = relationship(u'Xinstrument', primaryjoin='Xdeployment.sassetid == Xinstrument.assetid')
+    deploy_cruise = relationship('Xcruiseinfo', primaryjoin='Xdeployment.deploycruiseid == Xcruiseinfo.eventid')
+    mooring_asset = relationship('Xmooring', primaryjoin='Xdeployment.massetid == Xmooring.assetid')
+    node_asset = relationship('Xnode', primaryjoin='Xdeployment.nassetid == Xnode.assetid')
+    recover_cruise = relationship('Xcruiseinfo', primaryjoin='Xdeployment.recovercruiseid == Xcruiseinfo.eventid')
+    instrument_asset = relationship('Xinstrument', primaryjoin='Xdeployment.sassetid == Xinstrument.assetid')
 
 
 class Xinstrument(MetadataBase):
     __tablename__ = 'xinstrument'
-    assetid = Column('assetid', ForeignKey(u'xasset.assetid'), primary_key=True)
-    eventid = Column('eventid', ForeignKey(u'xdeployment.eventid'))
+    assetid = Column('assetid', ForeignKey('xasset.assetid'), primary_key=True)
+    eventid = Column('eventid', ForeignKey('xdeployment.eventid'))
     asset = relationship(Xasset)
 
 
 class Xmooring(MetadataBase):
     __tablename__ = 'xmooring'
-    assetid = Column('assetid', ForeignKey(u'xasset.assetid'), primary_key=True)
-    eventid = Column('eventid', ForeignKey(u'xdeployment.eventid'))
+    assetid = Column('assetid', ForeignKey('xasset.assetid'), primary_key=True)
+    eventid = Column('eventid', ForeignKey('xdeployment.eventid'))
     asset = relationship(Xasset)
 
 
 class Xnode(MetadataBase):
     __tablename__ = 'xnode'
-    assetid = Column('assetid', ForeignKey(u'xasset.assetid'), primary_key=True)
-    eventid = Column('eventid', ForeignKey(u'xdeployment.eventid'))
+    assetid = Column('assetid', ForeignKey('xasset.assetid'), primary_key=True)
+    eventid = Column('eventid', ForeignKey('xdeployment.eventid'))
     asset = relationship(Xasset)
 
 
