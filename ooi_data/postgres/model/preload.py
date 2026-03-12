@@ -209,7 +209,7 @@ class Parameter(MetadataBase):
             'data_product_identifier': self.data_product_identifier,
             'precision': precision,
         }
-        return {k: v for k, v in attrs.iteritems() if v is not None}
+        return {k: v for k, v in attrs.items() if v is not None}
 
     @property
     def is_function(self):
@@ -261,7 +261,7 @@ class Parameter(MetadataBase):
         Calculate all parameters needed to generate this parameter 1 level deep in the dependency graph
         :return: List of (Stream, (params,)) tuples
         """
-        return [v for v in self.needs_map.itervalues()
+        return [v for v in self.needs_map.values()
                 if isinstance(v, tuple)
                 and len(v) > 1
                 and isinstance(v[1], tuple)]
@@ -275,13 +275,13 @@ class Parameter(MetadataBase):
         needed = {}
         if self.is_function:
             # noinspection PyPropertyAccess
-            for name, values in self.parameter_function_map.iteritems():
+            for name, values in self.parameter_function_map.items():
                 # value is number, skip
                 if isinstance(values, Number):
                     needed[name] = (None, values)
                     continue
 
-                if isinstance(values, basestring):
+                if isinstance(values, str):
                     # value is a calibration coefficient
                     if values.startswith('CC'):
                         needed[name] = (None, values)
@@ -314,8 +314,8 @@ class Parameter(MetadataBase):
         if self.is_function:
             # noinspection PyPropertyAccess
             return [value
-                    for value in self.parameter_function_map.values()
-                    if isinstance(value, basestring) and value.startswith('CC')]
+                    for value in list(self.parameter_function_map.values())
+                    if isinstance(value, str) and value.startswith('CC')]
         return []
 
     # noinspection PyPropertyAccess
